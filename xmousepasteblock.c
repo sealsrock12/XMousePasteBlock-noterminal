@@ -27,6 +27,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput2.h>
+#include <X11/Xutil.h>
+
+#include "window-stuff.h"
 
 static Display *display;
 static struct ev_io *x_watcher;
@@ -97,7 +100,19 @@ void check_cb(EV_P_ ev_check *w, int revents) {
 #ifdef DEBUG
         printf("DEBUG: Button %i pressed\n", data->detail);
 #endif
-        if (data->detail == 2) {
+	
+	Window focusedWindow;
+	int revert_to;
+	XGetInputFocus(display, &focusedWindow, &revert_to);
+	Window top = get_top_window(display, focusedWindow);
+	Window named = get_named_window(display, top);
+	char* name = get_window_res_name(display, named);
+
+	const int isTerminal = strncmp("xfce4-terminal", name, strlen("xfce4-terminal")) == 0;
+
+	//printf("Window %s is terminal? %s", name, isTerminal ? "yes" : "no");
+
+        if (data->detail == 2 && !isTerminal) {
             clear();
         }
 

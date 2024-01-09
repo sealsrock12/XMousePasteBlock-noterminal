@@ -1,7 +1,9 @@
+# todo: make window-stuff not hardcoded and into a variable
+
 TARGET = xmousepasteblock
 
 INSTALL = install
-PREFIX ?= /usr
+PREFIX ?= /usr/local
 BINDIR = $(PREFIX)/bin
 RM = rm -f
 
@@ -10,8 +12,8 @@ CFLAGS += -std=gnu99
 CFLAGS += -Wall -Wundef -Wshadow -Wformat-security
 
 LD = $(CC)
-LDFLAGS += $(shell pkg-config --libs x11 xi)
-LDFLAGS += -lev
+LDFLAGS += $(shell pkg-config --libs x11 xi xmu)
+LDFLAGS += -lev 
 
 # OpenBSD make:
 #CFLAGS  +!= pkg-config --cflags x11 xi
@@ -38,8 +40,8 @@ debug: clean
 debug: CFLAGS += -g -DDEBUG
 debug: $(TARGET)
 
-$(TARGET): $(TARGET).o
-	$(LD) "$<" $(LDFLAGS) -o "$@"
+$(TARGET): $(TARGET).o window-stuff.o
+	$(LD) $? $(LDFLAGS) -o "$@"
 
 .PHONY: install
 install: $(TARGET)
@@ -51,4 +53,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(TARGET).o
+	$(RM) $(TARGET) $(TARGET).o window-stuff.o
